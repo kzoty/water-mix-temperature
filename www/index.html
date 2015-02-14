@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="initial-scale=1, maximum-scale=1, user-scalable=no, width=device-width">
+    <title>Water Mix Final Temperature</title>
+
+    <link href="lib/ionic/css/ionic.css" rel="stylesheet">
+    <link href="css/style.css" rel="stylesheet">
+
+    <!-- IF using Sass (run gulp sass first), then uncomment below and remove the CSS includes above
+    <link href="css/ionic.app.css" rel="stylesheet">
+    -->
+
+    <!-- ionic/angularjs js -->
+    <script src="lib/ionic/js/ionic.bundle.js"></script>
+
+    <!-- cordova script (this will be a 404 during development) -->
+    <script src="cordova.js"></script>
+
+    <!-- your app's js -->
+    <script src="js/app.js"></script>
+  </head>
+  <body ng-app="starter">
+
+    <ion-pane>
+      <ion-header-bar class="bar-stable">
+        <h1 class="title">Cáculo da temperatura da água</h1>
+      </ion-header-bar>
+      <ion-content>
+
+	      <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+	      <html><head><meta http-equiv="Content-Type" content="text/html; charset=windows-1252">
+
+		      <title>Online Conversion - Mixing Water</title>
+
+	      <body>
+	      <center>
+
+		      &nbsp;<br>
+		      <p>With this calculator you can determine the final temperature of a solution after mixing
+			      two or more solutions together.  This is for water in liquid, gaseous (steam), or solid (ice) form.</p>
+
+		      <script language="JavaScript">
+			      <!--
+			      // Content copyright 2007 by OnlineConversion.com®
+			      // not for use on any other web site.
+			      // Protected by http://www.copyscape.com/about.php
+
+			      var heat_of_fusion = 333.55			// [J/g]
+			      var heat_of_vaporization = 2257 		// [J/g]
+			      var specific_heat = 4.184			// [J/gK]
+
+			      function temp_conversion (value, inscale, outscale) {
+				      if ( inscale == outscale ) {
+					      return value;
+				      }
+
+				      var result = value;
+
+				      // convert input to kelvins
+
+				      switch (inscale) {
+					      case "C":
+						      result += 273.15
+						      break;
+					      case "F":
+						      result = ( result + 459.67 ) * 5 / 9
+						      break;
+					      case "R":
+						      result = result * 5 / 9
+						      break;
+				      }
+
+				      // and then to output scale
+
+				      switch (outscale) {
+					      case "C":
+						      result -= 273.15
+						      break;
+					      case "F":
+						      result = result * 9 / 5 - 459.67
+						      break;
+					      case "R":
+						      result = result * 9 / 5
+						      break;
+				      }
+				      return result;
+			      }
+
+			      function parse(ob, nanval) {
+				      var inval = parseFloat(ob.value)
+				      if ( isNaN(inval) ) {
+					      inval = nanval
+				      }
+				      ob.value = inval.toString()
+				      return inval
+			      }
+
+			      function addfield() {
+				      document.getElementById("fields").innerHTML += '		\
+		<INPUT name="mass" type="text" size="8" value="">			\
+		of									\
+		<select name="aggregation">					\
+			<option value="I">Ice</option>			\
+			<option value="W">Water</option>			\
+			<option value="S">Steam</option>			\
+		</select>								\
+		 in temperature 							\
+		<INPUT name="temperature" type="text" size="5" value="">		\
+		<BR>'
+			      }
+
+			      function clearfields() {
+				      document.getElementById("fields").innerHTML = ''
+				      addfield();
+				      addfield();
+			      }
+
+			      function calculate() {
+				      document.getElementById("errors").innerHTML = ""
+
+				      var mass_array=document.getElementsByName("mass")
+				      var aggregation_array=document.getElementsByName("aggregation")
+				      var temperature_array=document.getElementsByName("temperature")
+
+				      var energy = 0
+				      var water_mass = 0
+				      var non_water_mass = 0
+				      var finaltemp = 0
+
+				      // get unit info
+
+				      var temperature_u = document.getElementById("temperature_unit").value
+				      var temperature_u_text = document.getElementById("temperature_unit")
+				      temperature_u_text = temperature_u_text.options[temperature_u_text.selectedIndex].text
+
+				      var mass_u = document.getElementById("mass_unit").value
+				      var mass_u_text = document.getElementById("mass_unit")
+				      mass_u_text = mass_u_text.options[mass_u_text.selectedIndex].text
+
+				      // calculate the ingredients energy relative to energy of water mass equal to sum of ingredients masses and temperature 0 Celcius degrees
+
+				      for ( var i=0 ; i<mass_array.length ; i++ ) {
+
+					      var curr_temp = parse(temperature_array[i], 0)
+					      var curr_mass = (mass_u_text == 'Kg(l)' ? parse(mass_array[i], 1) * 1000 : parse(mass_array[i], 1));
+					      var curr_temp_celc = temp_conversion ( curr_temp, temperature_u, 'C' )
+
+					      // check for errors
+
+					      if ( curr_mass < 0 ) {
+						      document.getElementById("errors").innerHTML= "ERROR in field " + (i+1) + ": mass can't be negative"
+						      return false
+					      }
+
+					      if ( curr_temp_celc < -273.15 ) {
+						      document.getElementById("errors").innerHTML= "ERROR in field " + (i+1) + ": temperature can't be below absolute zero."
+						      return false
+					      }
+
+					      if ( curr_temp_celc < 0 && aggregation_array[i].value != "I" ) {
+						      document.getElementById("errors").innerHTML= "ERROR in field " + (i+1) + ": the water in temperature " + temperature_array[i].value + " " + temperature_u_text + " is in solid state (choose \"Ice\" from dropdown list)."
+						      return false
+					      }
+					      if ( curr_temp_celc > 100 && aggregation_array[i].value != "S" ) {
+						      document.getElementById("errors").innerHTML= "ERROR in field " + (i+1) + ": the water in temperature " + temperature_array[i].value + " " + temperature_u_text + " is in gas state (choose \"Steam\" from dropdown list)."
+						      return false
+					      }
+					      if ( curr_temp_celc < 100 && curr_temp_celc > 0 && aggregation_array[i].value != "W" ) {
+						      document.getElementById("errors").innerHTML= "ERROR in field " + (i+1) + ": the water in temperature " + temperature_array[i].value + " " + temperature_u_text + " is in liquid state (choose \"Water\" from dropdown list)."
+						      return false
+					      }
+
+					      water_mass += curr_mass * mass_u
+					      energy += curr_temp_celc * curr_mass * mass_u * specific_heat
+
+					      if ( aggregation_array[i].value == "S" ) {
+						      energy += heat_of_vaporization * curr_mass * mass_u
+					      }
+
+					      if ( aggregation_array[i].value == "I" ) {
+						      energy -= heat_of_fusion * curr_mass * mass_u
+					      }
+				      }
+
+				      // calculation of aggregation state changes (and necessary water heating). This can be done by much shorter code with use of ?: operator, but i chose readability over length optimization
+
+
+				      if ( energy < 0 ) {
+					      finaltemp = 0
+					      if ( energy <= -heat_of_fusion * water_mass ) {
+						      energy += heat_of_fusion * water_mass
+						      non_water_mass = water_mass
+						      water_mass = 0
+					      }
+					      else {
+						      non_water_mass = -energy/heat_of_fusion
+						      water_mass -= non_water_mass
+						      energy = 0
+					      }
+				      }
+				      else {
+					      if ( energy >= 100 * water_mass * specific_heat ) {
+						      energy -= 100 * water_mass * specific_heat
+						      finaltemp = 100
+
+						      if ( energy >= heat_of_vaporization * water_mass ) {
+							      energy -= heat_of_vaporization * water_mass
+							      non_water_mass = water_mass
+							      water_mass = 0
+						      }
+						      else {
+							      non_water_mass = energy/heat_of_vaporization
+							      water_mass -= non_water_mass
+							      energy = 0
+						      }
+					      }
+				      }
+
+
+				      // all aggregation state finished, calculate final temperature
+
+
+				      finaltemp += energy / (water_mass + non_water_mass) / specific_heat
+
+				      // compose result text
+
+				      var calc_result = "RESULT:\n"
+
+				      if ( water_mass > 0 ) {
+					      water_mass = (mass_u_text == 'Kg(l)' ? water_mass / 1000 : water_mass);
+					      calc_result += water_mass / mass_u + mass_u_text + " of water"
+					      if ( non_water_mass > 0 ) {
+						      calc_result += " and "
+					      }
+				      }
+				      if ( non_water_mass > 0 ) {
+					      calc_result += non_water_mass / mass_u + mass_u_text + " of"
+					      if ( finaltemp <= 0 ) {
+						      calc_result += " ice"
+					      }
+					      else {
+						      calc_result += " steam"
+					      }
+				      }
+
+
+				      calc_result += " in temperature " + temp_conversion ( finaltemp, "C", temperature_u ) + " " + temperature_u_text
+
+				      document.getElementById("result").value = calc_result
+			      }
+
+			      //-->
+		      </script>
+
+		      <br>
+		      Mass units:
+		      <select id="mass_unit">
+			      <option value="1">Kg(l)</option>
+			      <option value="1">g</option>
+			      <option value="28.3495231">oz</option>
+		      </select><br>
+
+		      Temperature scale:
+		      <select id="temperature_unit">
+			      <option value="C">C deg</option>
+			      <option value="K">K</option>
+			      <option value="F">F deg</option>
+			      <option value="R">R deg</option>
+		      </select><br>
+
+		      <br>
+		      Result of mixing:<br>
+		      <br>
+		      <div class="row">
+			      <div class="col">
+				      <input name="mass" type="number" size="8" value="" placeholder="Mass">
+			      </div>
+			      <div class="col">
+				      <select name="aggregation">
+					      <option value="W">Water</option>
+					      <option value="I">Ice</option>
+					      <option value="S">Steam</option>
+				      </select>
+			      </div>
+			      <div class="col">
+				      <input name="temperature" type="number" size="5" value="" placeholder="Temperature">
+			      </div>
+		      </div>
+		      <div class="row">
+			      <div class="col">
+				      <input name="mass" type="number" size="8" value="" placeholder="Mass">
+			      </div>
+			      <div class="col">
+				      <select name="aggregation">
+					      <option value="W">Water</option>
+					      <option value="I">Ice</option>
+					      <option value="S">Steam</option>
+				      </select>
+			      </div>
+			      <div class="col">
+				      <input name="temperature" type="number" size="5" value="" placeholder="Temperature">
+			      </div>
+		      </div>
+		      <p>
+			      <a href="javascript:addfield();">Add another field</a> |
+			      <a href="javascript:clearfields();">Clear all fields</a></p>
+
+		      <font color="red"><div id="errors"></div></font>
+
+		      <button type="button" onclick="calculate()">Calculate</button>
+		      <br>
+		      <textarea id="result" readonly="true" name="result" rows="5" cols="50"></textarea>
+
+		      <script language="JavaScript">
+			      <!--
+			      addfield();addfield();
+			      //-->
+		      </script>
+
+
+      </ion-content>
+    </ion-pane>
+  </body>
+</html>
