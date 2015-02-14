@@ -18,7 +18,7 @@
   </feature>
 
 	<!-- Default icon/splash -->
-	<gap:splash src="img/splash.png" />
+	<gap:splash src="splash.png" />
 	<icon src="img/icon.png" />
 
 </widget>
